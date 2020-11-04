@@ -2,15 +2,38 @@
     <head>
         <title>Our Game</title>
         <script src="https://cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js"></script>
+        <script src="eth.js"></script>
     </head>
     <body>
-        <h1>Game Website</h1>
+        <h1>Pump Your Bag</h1>
+        <br>
+        <button onClick="buy(1)">Buy Pump Talisman, 0.0001 ETH</button>
+        <br>
+        <button onClick="buy(2)">Buy Super Boots, 0.0002 ETH</button>
+        <br>
+        <button onClick="buy(3)">Buy Time Warp Cape, 0.0003 ETH</button>
+        <br><br>
         <script>
+
             var cursors;
             var knight;
             var crates;
             var coinTimer;
             var score = 0;
+            var scoreText;
+            var secondsLeft = 20;
+            var timeLeftText;
+            var timeLeftTimer;
+
+            var gameOver = false;
+
+            //Pump Talisman
+            var COIN_GENERATION_INTERVAL = 3000;
+            //Super Boots
+            var PLAYER_SPEED = 300;
+            // Time Warp Cape
+            var GAME_SECOND = 1000;
 
             //configure the game (height, width, render-type, game loop functions)
             var config = {
@@ -31,6 +54,12 @@
                     }
                 }
             }
+            
+            var game;
+            getUserItems(function(){
+                var game = new Phaser.Game(config);
+            });
+      
 
             function gamePreload(){
                 //loading assets
@@ -133,17 +162,44 @@
                     repeat:1
                 });
                 
-
                 this.physics.add.collider(crates, knight);
+
+                scoreText = this.add.text(16,16, "Bitcoin Bag: 0", 
+                                    {fontSize:"22px",
+                                    fill: "#000",})
+                timeLeftText = this.add.text(16,46, secondsLeft + "seconds left", 
+                                    {fontSize:"22px",
+                                    fill: "#f00",})
 
                 cursors = this.input.keyboard.createCursorKeys();
 
+                console.log("Creating coin timer with COIN_GENERATION_INTERVAL", COIN_GENERATION_INTERVAL)
+
                 coinTimer = this.time.addEvent({
-                    delay: Phaser.Math.Between(0, 3000),
+                    delay: COIN_GENERATION_INTERVAL,
                     callback: generateCoins,
                     callbackScope: this,
                     repeat: -1
                 });
+
+                timeLeftTimer= this.time.addEvent({
+                    delay: GAME_SECOND,
+                    callback: updateTimeLeft,
+                    callbackScope: this,
+                    repeat: -1
+                });
+            }
+
+            function updateTimeLeft(){  
+                if(gameOver) {
+                    return;
+                };
+                secondsLeft -=1;
+                timeLeftText.setText(secondsLeft + " seconds left");
+                if(secondsLeft <= 0){
+                    this.physics.pause();
+                    gameOver = true;
+                }
             }
 
             function generateCoins(){
@@ -171,19 +227,19 @@
                 //first true disables coin, second true makes it disappear
                 coin.disableBody(true, true);
                 score +=1;
-                console.log(score)
+                scoreText.setText("Bitcoin Bag: " + score);
             }
 
             function gameUpdate(){
                 //monitoring inputs and telling game how to update
                 if(cursors.left.isDown){
-                    knight.setVelocityX(-200);
+                    knight.setVelocityX(-PLAYER_SPEED);
                     knight.play("knight_run", true);
                     //turns the knight around
                     knight.flipX = true;
                     
                 } else if(cursors.right.isDown){
-                    knight.setVelocityX(200);
+                    knight.setVelocityX(PLAYER_SPEED);
                     knight.play("knight_run", true)
                 } else {
                     knight.setVelocityX(0);
@@ -195,7 +251,6 @@
                 }
             }
 
-            var game = new Phaser.Game(config);
         </script>
     </body>
 
