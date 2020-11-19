@@ -444,8 +444,8 @@ var tokenAbi =  [
   }
 ]
 
-  var token = new web3.eth.Contract(tokenAbi, "0x63710Dd8eaCFC76b38dedDd99AA5fcF12CA28478");
-  var marketplace = new web3.eth.Contract(marketplaceAbi, "0x4bEBfD28BB50075413e5865Db26c72aC17aC13DE");
+  var token = new web3.eth.Contract(tokenAbi, "0x14d6997921C956781c8F98607c2137cff654AD2C");
+  var marketplace = new web3.eth.Contract(marketplaceAbi, "0x5FEa9db0BdB998c32A6D1dE00008CA8c1c07267b");
 
   function getUserItems(callback) {
     web3.eth.getAccounts().then(accountArray => {
